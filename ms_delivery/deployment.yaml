@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-delivery-deployment
+  labels:
+    app: ms-delivery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-delivery
+  template:
+    metadata:
+      labels:
+        app: ms-delivery
+    spec:
+      containers:
+        - name: ms-delivery
+          image: svysk/ms-delivery:0.0.1-SNAPSHOT
+          ports:
+            - name: http-delivery
+              containerPort: 8081

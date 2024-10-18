@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: marketplace-ingress
+
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: marketplace.svysk.com
+      http:
+        paths:
+          - path: /ms-order
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-order
+                port:
+                  name: http-order
+          - path: /ms-delivery
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-delivery
+                port:
+                  name: http-delivery
