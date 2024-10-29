@@ -16,7 +16,14 @@ spec:
     spec:
       containers:
         - name: ms-order
-          image: svysk/ms-order:0.0.1-SNAPSHOT
+          image: svysk/ms-order:0.0.1
           ports:
             - name: http-order
               containerPort: 8080
+          env:
+          - name: DELIVERY_URL
+            valueFrom:
+              configMapKeyRef:
+                name: order-configmap
+                key: DELIVERY_URL
+

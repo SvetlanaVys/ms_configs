@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ms-delivery
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: ms-delivery
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: ms-delivery
-          image: svysk/ms-delivery:0.0.1-SNAPSHOT
+          image: svysk/ms-delivery:0.0.1
           ports:
             - name: http-delivery
               containerPort: 8081
