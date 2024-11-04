@@ -9,12 +9,18 @@ This is a Kubernetes configuration for two services of microservices project:
 ```bash
 
 ├── ms-delivery/
-│   ├── deployment.yaml
-│   └── service.yaml
+│   ├── configmap.yaml
+│   ├── delivery_app.yaml
+│   ├── postgres-secret.yaml
+│   └── postgres.yaml
 ├── ms-order/
-│   ├── deployment.yaml
-│   └── service.yaml
+│   ├── configmap.yaml
+│   ├── order_app.yaml
+│   ├── postgres-secret.yaml
+│   └── postgres.yaml
 ├── ingress.yaml
+├── kustomization.yaml
+├── namespace.yaml
 └── README.md
 ```
 
@@ -30,21 +36,23 @@ You need to map the domain name to your local Kubernetes cluster IP.
     ```bash
    <Kubernetes cluster IP>  marketplace.svysk.com
     ```
-   
-### Step 2: Deploy the Services
 
-For each service (ms-delivery and ms-order), run the following commands to deploy the services to your 
+### Step 2: Enable ingress
+
+For instance, if you use Minikube environment, run the following command:
+
+```bash
+ minikube addons enable ingress
+```
+   
+### Step 3: Deploy the Services
+
+Run the following command to deploy the services to the 
 Kubernetes cluster:
 ```bash
- kubectl apply -f deployment.yaml
- kubectl apply -f service.yaml
+ kubectl apply -k .
 ```
 
-### Step 3: Apply Ingress Configuration
-Once both services are running, apply the Ingress configuration to expose the services through a domain:
-```bash
-kubectl apply -f ingress.yaml
-```
 ### Step 4: Access the Services via Swagger
 After the Ingress is set up, you can access the Swagger documentation for both services using the following URLs:
    - https://marketplace.svysk.com/ms-order/swagger-ui/index.html

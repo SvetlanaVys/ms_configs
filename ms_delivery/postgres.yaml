@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-delivery
+  namespace: marketplace
+  labels:
+    app: postgres-delivery
+spec:
+  serviceName: postgres-delivery-service  # This defines the headless service for the StatefulSet
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-delivery
+  template:
+    metadata:
+      labels:
+        app: postgres-delivery
+    spec:
+      containers:
+        - name: postgres-delivery
+          image: postgres:16
+          ports:
+            - containerPort: 5433
+          env:
+            - name: POSTGRES_DB
+              value: ms-delivery
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-postgres-secret
+                  key: POSTGRES_PASSWORD
+          args:
+            - "-p"
+            - "5433"  # Start PostgreSQL on port 5433
+          volumeMounts:
+            - name: postgres-delivery-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-delivery-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-delivery-service
+spec:
+  selector:
+    app: postgres-delivery
+  clusterIP: None # Headless service
+  ports:
+    - port: 5433      # Service port exposed
+      targetPort: 5433 # Container port (PostgreSQL is now listening on 5433)
+      protocol: TCP

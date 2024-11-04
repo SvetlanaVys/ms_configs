@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: delivery-configmap
+  namespace: marketplace
+data:
+  POSTGRES_URL: jdbc:postgresql://postgres-delivery-service:5433/ms-delivery
