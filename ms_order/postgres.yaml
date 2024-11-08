@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-order
+  namespace: marketplace
+  labels:
+    app: postgres-order
+spec:
+  serviceName: postgres-order-service  # This defines the headless service for the StatefulSet
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-order
+  template:
+    metadata:
+      labels:
+        app: postgres-order
+    spec:
+      containers:
+        - name: postgres-order
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: ms-order
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: order-postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: order-postgres-secret
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-order-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-order-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-order-service
+spec:
+  selector:
+    app: postgres-order
+  clusterIP: None # Headless service
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP

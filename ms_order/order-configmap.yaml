@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: order-configmap
-data:
-  DELIVERY_URL: "http://ms-delivery:8081/ms-delivery"
