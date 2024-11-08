@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-configmap
+  namespace: marketplace
+data:
+  DELIVERY_URL: http://ms-delivery:8081/ms-delivery
+  POSTGRES_URL: jdbc:postgresql://postgres-order-service:5432/ms-order

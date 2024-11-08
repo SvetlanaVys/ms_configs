@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-delivery-deployment
+  namespace: marketplace
+  labels:
+    app: ms-delivery
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ms-delivery
+  template:
+    metadata:
+      labels:
+        app: ms-delivery
+    spec:
+      containers:
+        - name: ms-delivery
+          image: svysk/ms-delivery:0.1.0
+          ports:
+            - name: http-delivery
+              containerPort: 8081
+          resources:
+            requests:
+              memory: "128Mi"     # Minimum memory guaranteed
+              cpu: "100m"         # Minimum CPU guaranteed (100m = 0.1 CPU)
+            limits:
+              memory: "256Mi"     # Maximum memory allowed
+              cpu: "500m"         # Maximum CPU allowed (500m = 0.5 CPU)
+          env:
+            - name: POSTGRES_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: delivery-configmap
+                  key: POSTGRES_URL
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-postgres-secret
+                  key: POSTGRES_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-delivery
+  namespace: marketplace
+spec:
+  selector:
+    app: ms-delivery
+  ports:
+    - name: http-delivery
+      port: 8081
+      targetPort: http-delivery
+      protocol: TCP

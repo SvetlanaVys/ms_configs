@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: marketplace  # Set the namespace for all resources
+
+resources:
+  # Core infrastructure
+  - namespace.yaml
+  - ingress.yaml
+
+  # Microservice-specific resources (Order)
+  - ms_order/order_app.yaml
+  - ms_order/postgres.yaml
+  - ms_order/postgres-secret.yaml
+  - ms_order/configmap.yaml
+
+  # Microservice-specific resources (Delivery)
+  - ms_delivery/delivery_app.yaml
+  - ms_delivery/postgres.yaml
+  - ms_delivery/postgres-secret.yaml
+  - ms_delivery/configmap.yaml
