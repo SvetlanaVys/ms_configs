@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ms-delivery
-          image: svysk/ms-delivery:0.0.3-SNAPSHOT
+          image: svysk/ms-delivery:0.1.0
           ports:
             - name: http-delivery
               containerPort: 8081

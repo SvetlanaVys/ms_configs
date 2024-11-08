@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ms-order
-          image: svysk/ms-order:0.0.3-SNAPSHOT
+          image: svysk/ms-order:0.1.0
           ports:
             - name: http-order
               containerPort: 8080
