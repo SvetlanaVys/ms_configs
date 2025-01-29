@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+spec:
+  ports:
+    - port: 9092
+      name: kafka-port
+    - port: 9093
+      name: ex-kafka-port
+  clusterIP: None  # Headless service
+  selector:
+    app: kafka
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+spec:
+  serviceName: "kafka"
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: wurstmeister/kafka:2.13-2.8.1
+          ports:
+            - containerPort: 9092  # Kafka broker port for internal communication
+            - containerPort: 9093  # External port for client communication
+          env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zookeeper:2181  # ZooKeeper connection string
+            # - name: KAFKA_LISTENERS
+            #   value: PLAINTEXT://0.0.0.0:9092
+            - name: KAFKA_LISTENERS
+              value: INSIDE://0.0.0.0:9092,PLAINTEXT://0.0.0.0:9093  # Internal and external listeners
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: INSIDE:PLAINTEXT,PLAINTEXT:PLAINTEXT  # Define security protocols for each listener
+            - name: KAFKA_LISTENER_NAMES
+              value: INSIDE,PLAINTEXT
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "INSIDE://$(POD_NAME).kafka.marketplace.svc.cluster.local:9092,PLAINTEXT://$(POD_NAME).kafka.marketplace.svc.cluster.local:9093"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/kafka/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: kafka-pvc  # Persistent Volume Claim for Kafka data storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kafka-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kafka-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard  # Adjust based on your environment's storage class
+  hostPath:
+    path: /data/kafka  # Local path for storing Kafka data (change this for your environment)

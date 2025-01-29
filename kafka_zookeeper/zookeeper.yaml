@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: arm64v8/zookeeper:3.7.2
+          ports:
+            - containerPort: 2181
+          env:
+            - name: ZOOKEEPER_SERVER_ID
+              value: "1"  #
+            - name: ZOOKEEPER_ADMINSERVERPORT
+              value: "8080" 
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: datalog
+              mountPath: /datalog
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: zookeeper-pvc-data
+        - name: datalog
+          persistentVolumeClaim:
+            claimName: zookeeper-pvc-datalog
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zookeeper-pvc-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zookeeper-pvc-datalog
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+spec:
+  ports:
+    - port: 2181
+      targetPort: 2181
+      name: client
+  selector:
+    app: zookeeper

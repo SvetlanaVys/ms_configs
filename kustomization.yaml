@@ -8,6 +8,11 @@ resources:
   - namespace.yaml
   - ingress.yaml
 
+  # Kafka / zookeeper resources
+  - kafka_zookeeper/zookeeper.yaml
+  - kafka_zookeeper/kafka-statefulset.yaml
+  - kafka_zookeeper/kafka-configmap.yaml
+
   # Microservice-specific resources (Order)
   - ms_order/order_app.yaml
   - ms_order/postgres.yaml
